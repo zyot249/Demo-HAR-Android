@@ -1,7 +1,6 @@
 package dspanah.sensor_based_har;
 
 import android.content.Context;
-import android.content.res.AssetFileDescriptor;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -14,19 +13,13 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
-
-//import dspanah.sensor_based_har.ml.Model1;
 
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener, TextToSpeech.OnInitListener {
@@ -76,10 +69,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private float[] results;
     private HARClassifier classifier;
 
-//    private Interpreter tflite;
-
     private String[] labels = {"Biking", "Downstairs", "Jogging", "Sitting", "Standing", "Upstairs", "Walking"};
-    private final float defaultOutput[] = {0f, 0f, 0f, 0f, 0f, 0f, 0f};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,11 +114,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         textToSpeech = new TextToSpeech(this, this);
         textToSpeech.setLanguage(Locale.US);
 
-//        try {
-//            tflite = new Interpreter(loadModelFile());
-//        }catch (Exception ex){
-//            ex.printStackTrace();
-//        }
     }
 
     @Override
@@ -264,36 +249,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
-//    private float[] predict(List<Float> data) {
-//        float[] results1 = new float[7];
-//        try {
-//            Model1 model = Model1.newInstance(getApplicationContext());
-//
-//            // Creates inputs for reference.
-//            ByteBuffer buffer = ByteBuffer.allocate(data.size() * 4);
-//            for(Float byt : data) {
-//                buffer.putFloat(byt);
-//            }
-//            TensorBuffer inputFeature0 = TensorBuffer.createFixedSize(new int[]{1, 100, 12}, DataType.FLOAT32);
-//            inputFeature0.loadBuffer(buffer);
-//
-//            // Runs model inference and gets result.
-//            Model1.Outputs outputs = model.process(inputFeature0);
-//            TensorBuffer outputFeature0 = outputs.getOutputFeature0AsTensorBuffer();
-//            if (!Float.isNaN(outputFeature0.getFloatValue(0))) {
-//                results1 = outputFeature0.getFloatArray();
-//            } else {
-//                results1 = defaultOutput;
-//            }
-//
-//            // Releases model resources if no longer used.
-//            model.close();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return results1;
-//    }
-
     private void setProbabilities() {
         bikingTextView.setText(Float.toString(round(results[0], 2)));
         downstairsTextView.setText(Float.toString(round(results[1], 2)));
@@ -349,20 +304,4 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private SensorManager getSensorManager() {
         return (SensorManager) getSystemService(SENSOR_SERVICE);
     }
-
-//    private MappedByteBuffer loadModelFile() throws IOException {
-//        AssetFileDescriptor fileDescriptor=this.getAssets().openFd("model1.tflite");
-//        FileInputStream inputStream=new FileInputStream(fileDescriptor.getFileDescriptor());
-//        FileChannel fileChannel=inputStream.getChannel();
-//        long startOffset=fileDescriptor.getStartOffset();
-//        long declareLength=fileDescriptor.getDeclaredLength();
-//        return fileChannel.map(FileChannel.MapMode.READ_ONLY,startOffset,declareLength);
-//    }
-
-//    private float[] doInference(String inputString) {
-//        float[][][] inputVal=new float[1][100][12];
-//        float[] output=new float[7];
-//        tflite.run(inputVal,output);
-//        return output;
-//    }
 }
