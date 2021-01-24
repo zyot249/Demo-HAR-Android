@@ -1,16 +1,23 @@
 package dspanah.sensor_based_har;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TableRow;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.res.ResourcesCompat;
 
 import java.math.BigDecimal;
@@ -20,6 +27,7 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.UUID;
 
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener, TextToSpeech.OnInitListener {
@@ -65,6 +73,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private TableRow upstairsTableRow;
     private TableRow walkingTableRow;
 
+    private Button btnShowNoti;
+
     private TextToSpeech textToSpeech;
     private float[] results;
     private HARClassifier classifier;
@@ -97,6 +107,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         upstairsTableRow = (TableRow) findViewById(R.id.upstairs_row);
         walkingTableRow = (TableRow) findViewById(R.id.walking_row);
 
+        btnShowNoti = findViewById(R.id.btn_showNoti);
+        btnShowNoti.setOnClickListener(v -> {
+         showNoti("Title", "Content");
+        });
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
@@ -114,6 +128,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         textToSpeech = new TextToSpeech(this, this);
         textToSpeech.setLanguage(Locale.US);
 
+        initActionNoti();
+    }
+
+    private void initActionNoti() {
+        createNotificationChannel();
+
+        Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                showNoti("Test.", "Testtttt");
+            }
+        }, 1000, 3000);
     }
 
     @Override
@@ -303,5 +330,39 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private SensorManager getSensorManager() {
         return (SensorManager) getSystemService(SENSOR_SERVICE);
+    }
+
+
+    final String CHANNEL_ID = "123456";
+
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "channel_name";
+            String description = "channel_description";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+
+    private void showNoti(String textTitle, String textContent) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setContentTitle(textTitle)
+                .setContentText(textContent)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+
+        int notificationId = (int)System.currentTimeMillis();
+        // notificationId is a unique int for each notification that you must define
+        notificationManager.notify(notificationId, builder.build());
     }
 }

@@ -186,5 +186,15 @@
                 android:textAlignment="center"
                 android:textSize="18sp" />
         </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="20dp">
+
+            <Button
+                android:id="@+id/btn_showNoti"
+                android:text="Thong bao" />
+        </TableRow>
     </TableLayout>
 </ScrollView>
